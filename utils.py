@@ -2,6 +2,11 @@ import sqlite3
 import requests
 import math
 
+import urllib3
+
+# Disabilita i warning per le richieste senza verifica SSL
+# urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 def haversine_distance(lat1, lon1, lat2, lon2):
     R = 6371  # raggio della Terra in km
 
@@ -18,9 +23,14 @@ def get_osrm_distance(lat1, lon1, lat2, lon2):
 
     # Calcolo approssimativo della distanza
 
-    approx_distance = haversine_distance(lat1, lon1, lat2, lon2)
+    approx_distance = 1000 * haversine_distance(lat1, lon1, lat2, lon2)
+
+    # print(f"Approximate distance: {approx_distance}")
+
 
     if approx_distance <= 100:
+        # print("Using OSRM for distance calculation")
+
 
         # Verifica se la distanza è già stata calcolata e salvata nel database
         conn = sqlite3.connect('distances.db', isolation_level=None, check_same_thread=False)
@@ -59,4 +69,5 @@ def get_osrm_distance(lat1, lon1, lat2, lon2):
         return distance
     
     else:
+        # print("Using approximate distance")
         return approx_distance
