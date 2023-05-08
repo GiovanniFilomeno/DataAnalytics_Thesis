@@ -71,3 +71,62 @@ def get_osrm_distance(lat1, lon1, lat2, lon2):
     else:
         # print("Using approximate distance")
         return approx_distance
+    
+
+
+# import requests
+# import math
+# import sqlite3
+# from concurrent.futures import ThreadPoolExecutor, as_completed
+
+# # Aggiungi questo parametro per controllare il numero di thread
+# NUM_WORKERS = 10
+
+# def haversine_distance(lat1, lon1, lat2, lon2):
+#     R = 6371  # raggio della Terra in km
+
+#     dLat = math.radians(lat2 - lat1)
+#     dLon = math.radians(lon2 - lon1)
+#     lat1 = math.radians(lat1)
+#     lat2 = math.radians(lat2)
+
+#     a = math.sin(dLat / 2) * math.sin(dLat / 2) + math.sin(dLon / 2) * math.sin(dLon / 2) * math.cos(lat1) * math.cos(lat2)
+#     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+#     return R * c
+
+# def get_osrm_distance(lat1, lon1, lat2, lon2):
+#     # ... (mantieni il codice esistente fino alla richiesta API)
+
+#     approx_distance = 1000 * haversine_distance(lat1, lon1, lat2, lon2)
+
+#     if approx_distance <= 100:
+#         url = f"http://router.project-osrm.org/route/v1/driving/{lon1},{lat1};{lon2},{lat2}?overview=false"
+#         return url, (lat1, lon1, lat2, lon2)
+#     else:
+#         return approx_distance
+
+# def process_api_responses(urls_and_coordinates):
+#     with ThreadPoolExecutor(max_workers=NUM_WORKERS) as executor:
+#         # Prepara un dizionario per memorizzare i risultati delle richieste
+#         distance_results = {}
+
+#         # Effettua le richieste in parallelo
+#         futures = {executor.submit(requests.get, url): coordinates for url, coordinates in urls_and_coordinates}
+
+#         for future in as_completed(futures):
+#             coordinates = futures[future]
+#             try:
+#                 response = future.result()
+#                 if response.status_code == 200:
+#                     data = response.json()
+#                     if 'routes' in data and len(data['routes']) > 0:
+#                         distance = data['routes'][0]['distance']
+#                         distance_results[coordinates] = distance
+#             except Exception as e:
+#                 print(f"Error processing coordinates {coordinates}: {e}")
+
+#         return distance_results
+
+# # Esempio di utilizzo:
+# # urls_and_coordinates = [(url1, coords1), (url2, coords2), ...]
+# # distances = process_api_responses(urls_and_coordinates)
