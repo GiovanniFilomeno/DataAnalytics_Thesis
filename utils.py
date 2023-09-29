@@ -1,6 +1,8 @@
 import sqlite3
 import requests
 import math
+import networkx as nx
+import numpy as np
 
 import urllib3
 
@@ -72,7 +74,98 @@ def get_osrm_distance(lat1, lon1, lat2, lon2):
         # print("Using approximate distance")
         return approx_distance
     
+def draw_graph(graph_to_draw, title=''):
+    import matplotlib.pyplot as plt
+    import geopandas as gpd
+    import networkx as nx
+    from pyproj import Transformer
+    import numpy as np
 
+    options = {
+        'node_color': 'lavender',
+        'node_size': 10,
+        'width': 1,
+        'arrowsize': 1,
+    }
+
+    # Leggi il file GeoJSON dei confini della Germania
+    germany_boundary = gpd.read_file('boundaries/4_niedrig.geo.json')
+
+    # Converti le coordinate geografiche in coordinate UTM
+    germany_boundary = germany_boundary.to_crs('epsg:32632')
+
+    # Crea un nuovo plot
+    fig, ax = plt.subplots(figsize=(12, 8))
+
+    # Assumi che 'nodes_id' sia una lista di numeri interi rappresentanti gli identificatori dei nodi nel tuo grafo
+    nodes_id = list(graph_to_draw.nodes)
+
+    # Crea un dizionario delle posizioni dei nodi nel grafo, utilizzando le coordinate di latitudine e longitudine
+    transformer = Transformer.from_crs('epsg:4326', 'epsg:32632', always_xy=True)
+    positions = [(graph_to_draw.nodes[node_id]['latitude'], graph_to_draw.nodes[node_id]['longitude']) for node_id in nodes_id]
+    positions_utm = np.array([transformer.transform(x[1], x[0]) for x in positions])
+    pos = {nodes_id[i]: positions_utm[i] for i in range(len(nodes_id))}
+
+    # Disegna il network ottimizzato
+    nx.draw_networkx(graph_to_draw, pos=pos, ax=ax, **options)
+
+    # Disegna i confini della Germania
+    germany_boundary.boundary.plot(ax=ax, linewidth=2, color='red', zorder=3)
+
+    # Imposta i titoli e visualizza il grafico
+    plt.title(title, fontsize=15)
+    plt.show()
+
+
+def calculate_metrics(graph):
+    metrics = {}
+
+    # Calcolo delle metriche di base
+    metrics["density"] = nx.density(graph)
+    metrics["average_distance"] = np.mean([edge[2]['weight'] for edge in graph.edges(data=True)]) / 1000  # Converti in km
+    # metrics["diameter"] = nx.diameter(graph, e=None, usebounds=False)
+    metrics["diameter"] = nx.approximation.diameter(graph)
+    # metrics["average_clustering"] = nx.average_clustering(graph)
+    metrics["average_clustering"] = nx.approximation.average_clustering(graph)
+
+    # Calcolo delle metriche di centralità
+    # degree_centrality = nx.degree_centrality(graph)
+    # closeness_centrality = nx.closeness_centrality(graph)
+    # betweenness_centrality = nx.betweenness_centrality(graph)
+
+    # metrics["average_degree_centrality"] = np.mean(list(degree_centrality.values()))
+    # metrics["average_closeness_centrality"] = np.mean(list(closeness_centrality.values()))
+    # metrics["average_betweenness_centrality"] = np.mean(list(betweenness_centrality.values()))
+
+    return metrics
+
+def weighted_mean(values, weights):
+    return sum(value * weight for value, weight in zip(values, weights)) / sum(weights)
+
+def calculate_weighted_metrics(graph, year):
+    components = [graph.subgraph(cc) for cc in nx.connected_components(graph) if len(cc) >= 2]
+
+    # metric_sums = {"density": 0.0, "average_distance": 0.0, "diameter": 0, "average_clustering": 0.0,
+    #                "average_degree_centrality": 0.0, "average_closeness_centrality": 0.0, "average_betweenness_centrality": 0.0}
+    
+    metric_sums = {"density": 0.0, "average_distance": 0.0, "diameter": 0, "average_clustering": 0.0}
+    
+    total_weight = 0
+    subnetwork_sizes = []
+    for component in components:
+        metrics = calculate_metrics(component)
+        weight = component.number_of_nodes()
+        total_weight += weight
+        for metric, value in metrics.items():
+            metric_sums[metric] += value * weight
+        subnetwork_sizes.append(weight)
+
+    weighted_metrics = {metric: value / total_weight for metric, value in metric_sums.items()}
+    weighted_metrics["year"] = year
+    weighted_metrics["total_nodes"] = graph.number_of_nodes()
+    weighted_metrics["subnetwork_sizes"] = subnetwork_sizes
+
+    return weighted_metrics
 
 # import requests
 # import math
