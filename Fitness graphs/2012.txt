@@ -1,0 +1,56 @@
+fitness = [
+    0.6174957683093285,
+    0.5873067840383067,
+    0.5572895739375967,
+    0.5221936158492779,
+    0.4981892562616628,
+    0.4737721520250373,
+    0.4452607674852256,
+    0.4452607674852256,
+    0.4452607674852256,
+    0.44087391082063276,
+    0.420970112892555,
+    0.420970112892555,
+    0.420970112892555,
+    0.420970112892555,
+    0.420970112892555,
+    0.420970112892555
+]
+
+generations = [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+]
+
+import matplotlib.pyplot as plt
+# Create a new figure
+plt.figure()
+
+# Plot the fitness values as points
+plt.scatter(generations, fitness, label='Fitness of incumbent')
+
+# Plot a horizontal line at y=0.44
+plt.axhline(y=0.5303, color='r', linestyle='-', label='Fitness of the real network')
+
+# Adding labels and title
+plt.xlabel('Generations')
+plt.ylabel('Fitness')
+plt.title('Fitness over Generations')
+plt.legend(loc='upper right')  # loc parameter is optional, it places the legend in the upper right corner
+
+# Show the plot
+plt.show()

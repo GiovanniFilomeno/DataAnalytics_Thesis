@@ -1,0 +1,84 @@
+fitness = [
+        0.5294749274,
+        0.4927854549275,
+        0.47204573957423,
+        0.45672894638264829,
+        0.442749056739367,
+        0.4390940450334503,
+        0.4390940450334503,
+        0.43466664644917485,
+        0.42662395236696404,
+        0.4153881810151407,
+        0.4153881810151407,
+        0.4133460014530765,
+        0.4133460014530765,
+        0.4133460014530765,
+        0.4133460014530765,
+        0.4133460014530765, 
+        0.4126129326229031, 
+        0.4120507192019431,
+        0.40944677706782573,
+        0.40944677706782573,
+        0.40944677706782573,
+        0.40944677706782573,
+        0.4083719842373921,
+        0.4083719842373921, 
+        0.39806068830634456,
+        0.39806068830634456,
+        0.39806068830634456,
+        0.39806068830634456,
+        0.39806068830634456,
+        0.39806068830634456,
+]
+
+generations = [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29
+]
+
+import matplotlib.pyplot as plt
+# Create a new figure
+plt.figure()
+
+# Plot the fitness values as points
+plt.scatter(generations, fitness, label='Fitness of incumbent')
+
+# Plot a horizontal line at y=0.44
+plt.axhline(y=0.4459, color='r', linestyle='-', label='Fitness of the real network')
+
+# Adding labels and title
+plt.xlabel('Generations')
+plt.ylabel('Fitness')
+plt.title('Fitness over Generations')
+plt.legend(loc='upper right')  # loc parameter is optional, it places the legend in the upper right corner
+
+# Show the plot
+plt.show()
